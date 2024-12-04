@@ -128,19 +128,34 @@
             backdrop-filter: blur(10px);
             display: none;
             touch-action: pan-x;
+            cursor: grab;
         }
         .project-preview.active {
             display: block;
-            animation: slideIn 0.5s ease-out;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         @keyframes slideIn {
             from {
-                opacity: 0;
                 transform: translateX(100px);
             }
             to {
-                opacity: 1;
                 transform: translateX(0);
+            }
+        }
+        @keyframes slideOutLeft {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-100px);
+            }
+        }
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(100px);
             }
         }
         .project-preview:hover {
@@ -358,6 +373,34 @@
                 transform: translateY(0);
             }
         }
+        /* Navigation arrows */
+        .slide-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: #4074ff;
+            background: rgba(255, 255, 255, 0.9);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        .slide-nav:hover {
+            background: #4074ff;
+            color: white;
+        }
+        .prev-slide {
+            left: 20px;
+        }
+        .next-slide {
+            right: 20px;
+        }
     </style>
 </head>
 <body>
@@ -408,6 +451,12 @@
                 <span class="dot active" onclick="showSlide(0)"></span>
                 <span class="dot" onclick="showSlide(1)"></span>
                 <span class="dot" onclick="showSlide(2)"></span>
+            </div>
+            <div class="slide-nav prev-slide" onclick="prevSlide()">
+                <i class="fas fa-chevron-left"></i>
+            </div>
+            <div class="slide-nav next-slide" onclick="nextSlide()">
+                <i class="fas fa-chevron-right"></i>
             </div>
         </section>
 
@@ -514,39 +563,61 @@
         let touchEndX = 0;
         let autoSlideInterval;
         let isPaused = false;
+        let isDragging = false;
+        let startPos = 0;
+        let currentTranslate = 0;
 
         function showSlide(n) {
-            slides[currentSlide].classList.remove('active');
+            const currentElement = slides[currentSlide];
+            const nextElement = slides[n];
+            
+            // Determine direction for animation
+            const direction = n > currentSlide ? 'right' : 'left';
+            
+            // Remove active class and add appropriate animation
+            currentElement.style.animation = `slideOut${direction === 'right' ? 'Left' : 'Right'} 0.5s ease-out`;
+            currentElement.classList.remove('active');
+            
+            // Update dots
             dots[currentSlide].classList.remove('active');
+            
+            // Update current slide
             currentSlide = n;
-            slides[currentSlide].classList.add('active');
+            
+            // Add active class to new slide with animation
+            nextElement.style.animation = 'slideIn 0.5s ease-out';
+            nextElement.classList.add('active');
+            
+            // Update dots
             dots[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            let n = currentSlide + 1;
+            if (n >= slides.length) n = 0;
+            showSlide(n);
+        }
+
+        function prevSlide() {
+            let n = currentSlide - 1;
+            if (n < 0) n = slides.length - 1;
+            showSlide(n);
         }
 
         function handleSwipe() {
             const swipeDistance = touchEndX - touchStartX;
-            if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
+            if (Math.abs(swipeDistance) > 50) {
                 if (swipeDistance > 0) {
-                    // Swipe right - show previous
-                    let n = currentSlide - 1;
-                    if (n < 0) n = slides.length - 1;
-                    showSlide(n);
+                    prevSlide();
                 } else {
-                    // Swipe left - show next
-                    let n = currentSlide + 1;
-                    if (n >= slides.length) n = 0;
-                    showSlide(n);
+                    nextSlide();
                 }
             }
         }
 
         function startAutoSlide() {
             if (!isPaused) {
-                autoSlideInterval = setInterval(() => {
-                    let n = currentSlide + 1;
-                    if (n >= slides.length) n = 0;
-                    showSlide(n);
-                }, 5000);
+                autoSlideInterval = setInterval(nextSlide, 5000);
             }
         }
 
@@ -568,7 +639,6 @@
             const scrollTop = window.scrollY;
             const clientHeight = document.documentElement.clientHeight;
 
-            // Show button when near bottom of page
             if (scrollTop + clientHeight >= scrollHeight - 100) {
                 goUpBtn.classList.add('visible');
             } else {
@@ -577,6 +647,7 @@
         });
 
         slides.forEach(slide => {
+            // Touch events
             slide.addEventListener('touchstart', e => {
                 touchStartX = e.touches[0].clientX;
                 isPaused = true;
@@ -590,19 +661,57 @@
                 startAutoSlide();
             });
 
-            slide.addEventListener('mouseenter', () => {
+            // Mouse events
+            slide.addEventListener('mousedown', e => {
+                isDragging = true;
+                startPos = e.clientX;
+                slide.style.cursor = 'grabbing';
                 isPaused = true;
                 stopAutoSlide();
             });
 
-            slide.addEventListener('mouseleave', () => {
+            slide.addEventListener('mousemove', e => {
+                if (!isDragging) return;
+                const currentPos = e.clientX;
+                const diff = currentPos - startPos;
+                
+                if (Math.abs(diff) > 50) {
+                    isDragging = false;
+                    slide.style.cursor = 'grab';
+                    if (diff > 0) {
+                        prevSlide();
+                    } else {
+                        nextSlide();
+                    }
+                }
+            });
+
+            slide.addEventListener('mouseup', () => {
+                isDragging = false;
+                slide.style.cursor = 'grab';
                 isPaused = false;
-                startAutoSlide();
+                //startAutoSlide();
+            });
+
+            slide.addEventListener('mouseleave', () => {
+                isDragging = false;
+                slide.style.cursor = 'grab';
+                isPaused = false;
+                //startAutoSlide();
             });
         });
 
         // Initial start of auto slide
-        startAutoSlide();
+        //startAutoSlide();
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
     </script>
 </body>
 </html>
