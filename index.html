@@ -298,6 +298,42 @@
         .social-link:hover {
             transform: translateY(-3px);
         }
+        /* Go up button styles */
+        .go-up-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: #4074ff;
+            color: white;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(64, 116, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .go-up-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(64, 116, 255, 0.4);
+        }
+        .go-up-btn.visible {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -442,6 +478,10 @@
         </section>
     </div>
 
+    <div class="go-up-btn" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
     <script>
         let currentSlide = 0;
         const slides = document.querySelectorAll('.project-preview');
@@ -489,6 +529,28 @@
         function stopAutoSlide() {
             clearInterval(autoSlideInterval);
         }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide go up button based on scroll position
+        window.addEventListener('scroll', () => {
+            const goUpBtn = document.querySelector('.go-up-btn');
+            const scrollHeight = document.documentElement.scrollHeight;
+            const scrollTop = window.scrollY;
+            const clientHeight = document.documentElement.clientHeight;
+
+            // Show button when near bottom of page
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                goUpBtn.classList.add('visible');
+            } else {
+                goUpBtn.classList.remove('visible');
+            }
+        });
 
         slides.forEach(slide => {
             slide.addEventListener('touchstart', e => {
