@@ -13,6 +13,11 @@
             color: rgb(51, 51, 51);
             display: flex;
             align-items: center;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        body.fade-out {
+            opacity: 0;
         }
         .container {
             max-width: 800px;
@@ -69,7 +74,7 @@
     <div class="container">
         <h1>About Brew Devs</h1>
         <p class="description">We are passionate about crafting exceptional software solutions that help businesses thrive in the digital age.</p>
-        
+        <i class="description">"We don't sell software, we sell innovation."</i>
         <div class="team-section">
             <div class="team-member">
                 <h3>Software Development</h3>
@@ -86,10 +91,28 @@
         </div>
 
         <nav>
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="contact.html" class="nav-link">Contact Us</a>
-            <a href="projects.html" class="nav-link">Sample Projects</a>
+            <a href="index.html" class="nav-link" onclick="fadeOut(event)">Home</a>
+            <a href="contact.html" class="nav-link" onclick="fadeOut(event)">Contact Us</a>
+            <a href="projects.html" class="nav-link" onclick="fadeOut(event)">Sample Projects</a>
         </nav>
     </div>
+
+    <script>
+        function fadeOut(event) {
+            event.preventDefault();
+            const href = event.target.href;
+            document.body.classList.add('fade-out');
+            setTimeout(() => {
+                window.location.href = href;
+            }, 300);
+        }
+
+        // Handle back/forward browser navigation
+        window.onpageshow = function(event) {
+            if (event.persisted) {
+                document.body.classList.remove('fade-out');
+            }
+        };
+    </script>
 </body>
 </html>
