@@ -77,11 +77,9 @@ let currentSlide = 0;
         // Show/hide go up button based on scroll position
         window.addEventListener('scroll', () => {
             const goUpBtn = document.querySelector('.go-up-btn');
-            const scrollHeight = document.documentElement.scrollHeight;
             const scrollTop = window.scrollY;
-            const clientHeight = document.documentElement.clientHeight;
 
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
+            if (scrollTop > 100) {
                 goUpBtn.classList.add('visible');
             } else {
                 goUpBtn.classList.remove('visible');
