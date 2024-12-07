@@ -14,24 +14,39 @@ let currentSlide = 0;
             const nextElement = slides[n];
             
             // Determine direction for animation
-            const direction = n > currentSlide ? 'right' : 'left';
+            const direction = n > currentSlide ? 1 : -1;
             
-            // Remove active class and add appropriate animation
-            currentElement.style.animation = `slideOut${direction === 'right' ? 'Left' : 'Right'} 0.5s ease-out`;
+            // Set initial positions
+            currentElement.style.transition = 'none';
+            nextElement.style.transition = 'none';
+            currentElement.style.transform = 'translateX(0)';
+            nextElement.style.transform = `translateX(${direction * 100}%)`;
+            
+            // Force reflow to ensure transitions work
+            void currentElement.offsetWidth;
+            
+            // Enable transitions and move slides
+            currentElement.style.transition = 'transform 0.5s ease-out';
+            nextElement.style.transition = 'transform 0.5s ease-out';
+            currentElement.style.transform = `translateX(${-direction * 100}%)`;
+            nextElement.style.transform = 'translateX(0)';
+            
+            // Update active states
             currentElement.classList.remove('active');
-            
-            // Update dots
-            dots[currentSlide].classList.remove('active');
-            
-            // Update current slide
-            currentSlide = n;
-            
-            // Add active class to new slide with animation
-            nextElement.style.animation = 'slideIn 0.5s ease-out';
             nextElement.classList.add('active');
             
             // Update dots
-            dots[currentSlide].classList.add('active');
+            dots[currentSlide].classList.remove('active');
+            dots[n].classList.add('active');
+            
+            // Update current slide index
+            currentSlide = n;
+            
+            // Clean up transitions after animation
+            setTimeout(() => {
+                currentElement.style.transition = '';
+                nextElement.style.transition = '';
+            }, 500);
         }
 
         function nextSlide() {
