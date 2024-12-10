@@ -160,3 +160,27 @@ let currentSlide = 0;
             currentRotation += direction * 120; // Changed from 60 to 120 degrees for 3 items (360/3 = 120)
             carousel.style.transform = `rotateY(${currentRotation}deg)`;
         }
+
+        function openImagePopup(src) {
+            const popup = document.createElement('div');
+            popup.classList.add('image-popup');
+            popup.innerHTML = `
+                <div style="position: relative;">
+                    <button onclick="closeImagePopup(this)" 
+                            style="position: absolute; top: 10px; right: 10px; 
+                                   background: #4074ff; color: white; border: none;
+                                   padding: 8px 16px; border-radius: 4px; cursor: pointer;
+                                   z-index: 1001;">
+                        Close
+                    </button>
+                    <img src="${src}" alt="Project Image">
+                </div>
+            `;
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            document.body.appendChild(popup);
+        }
+
+        function closeImagePopup(button) {
+            document.body.style.overflow = ''; // Restore scrolling
+            button.parentElement.parentElement.remove();
+        }
