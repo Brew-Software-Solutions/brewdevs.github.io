@@ -120,28 +120,42 @@ nav {
 .cta-link:hover {
     background: rgb(32, 96, 255);
 }
+.project-carousel {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    height: 500px;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+}
 .project-preview {
     margin: 0px auto;
+    width: 90%;
     max-width: 800px;
-    padding: 30px;
-    position: relative;
+    padding: 20px;
+    position: absolute;
+    backface-visibility: hidden;
     background: rgba(255, 255, 255, 0.95);
     border-radius: 16px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
-    display: none;
-    touch-action: pan-x pan-y; /* Allow vertical scrolling */
-    cursor: grab;
-    user-select: none;
-    transform: translateX(0);
+    display: block;
+    touch-action: pan-x pan-y;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.3s ease-out;
-    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-y: auto;
 }
 .project-preview.active {
     display: block;
 }
+.project-preview-content {
+    object-fit: contain;
+    width: 100%;
+}
 .project-preview img {
-    max-width: 90%;
+    width: 100%;
+    max-width: 100%;
     height: auto;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);

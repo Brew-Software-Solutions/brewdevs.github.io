@@ -102,27 +102,12 @@ let currentSlide = 0;
         });
 
         slides.forEach(slide => {
-            // Touch events
-            slide.addEventListener('touchstart', e => {
-                touchStartX = e.touches[0].clientX;
-                isPaused = true;
-                stopAutoSlide();
-            });
-
-            slide.addEventListener('touchend', e => {
-                touchEndX = e.changedTouches[0].clientX;
-                handleSwipe();
-                isPaused = false;
-                startAutoSlide();
-            });
 
             // Mouse events
             slide.addEventListener('mousedown', e => {
                 isDragging = true;
                 startPos = e.clientX;
                 slide.style.cursor = 'grabbing';
-                isPaused = true;
-                stopAutoSlide();
             });
 
             slide.addEventListener('mousemove', e => {
@@ -134,9 +119,9 @@ let currentSlide = 0;
                     isDragging = false;
                     slide.style.cursor = 'grab';
                     if (diff > 0) {
-                        prevSlide();
+                        rotate(1);
                     } else {
-                        nextSlide();
+                        rotate(-1);
                     }
                 }
             });
@@ -162,8 +147,16 @@ let currentSlide = 0;
         // Keyboard navigation
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
-                prevSlide();
+                rotate(-1);
             } else if (e.key === 'ArrowRight') {
-                nextSlide();
+                rotate(1);
             }
         });
+
+        let currentRotation = 0;
+        const carousel = document.querySelector('.project-carousel');
+
+        function rotate(direction) {
+            currentRotation += direction * 120; // Changed from 60 to 120 degrees for 3 items (360/3 = 120)
+            carousel.style.transform = `rotateY(${currentRotation}deg)`;
+        }
